@@ -1,5 +1,4 @@
 /* CSS */
-
 body {
   background-color: var(--bg-cool-color);
 }
@@ -62,7 +61,7 @@ body {
   backface-visibility: hidden;
   height: 30px;
   padding: 0 15px; 
-  font-size: 80%; 
+  font-size: 60%; 
   background-color: #405cf5;
   border-radius: 6px;
   border-width: 0;
@@ -70,7 +69,7 @@ body {
   color: #fff;
   cursor: pointer;
   font-family: -apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif;
-  font-size: 100%;
+  font-size: 80%;
   line-height: 1.15;
   margin: 12px 0 0;
   outline: none;
