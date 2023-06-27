@@ -1,11 +1,12 @@
 import './App.css';
-import { Button, Space, Table,} from 'antd';
-import initCollapseMotion from 'antd/es/_util/motion';
+import { Button, Space } from 'antd';
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 export default function App() {
   const [showInfo, setShowInfo] = useState(false);
+  const [lisääButton, setLisääButton] = useState(0)
+  const [väriButton, setVäriButton] = useState(0)
   const [inputtext, setInputText] = useState("");
   const [showMuokkaus, setMuokkaus] = useState(false);
   const [Data, setData] = useState([]);
@@ -16,13 +17,22 @@ export default function App() {
   const [tehtyBackUp, setTehtyBackUp] = useState([]);
   const [sortButton, setSortButton] = useState(false)
   const [tehdytSortButton, setTehdytSortButton] = useState(false)
-  const { Column } = Table
+
+  const [taustaBg, setTaustaBg] = useState('')
+  const [taulukkoBg, setTaulukkoBg] = useState('')
+  const [selectBg, setTaustanBg] = useState('#FFFFFF')
+  const [selectTaulukkoBg, setTaulukonBg] = useState('#FFFFFF')
 
   const handleSave = () => {
     setShowInfo(false);
     if (inputtext !== "") {
       setData([...Data, { Id: uuidv4(), Name: inputtext, State: "Tekemättä" }]);
       setBackUp([...Data, { Id: uuidv4(), Name: inputtext, State: "Tekemättä" }]);
+      setInputText('')
+      setLisääButton(0);
+    }
+    else {
+      setLisääButton(0)
     }
   };
   const handleSort = () => {
@@ -41,14 +51,30 @@ export default function App() {
     setData(sorted);
   };
 
-  const handleinfo = () => {
+const handleinfo = () => {
+  if (lisääButton === 0) {
     setShowInfo(true);
     setVari(false);
-  };
+    setLisääButton(1);
+    setVäriButton(0);
+  }
+  if (lisääButton === 1) {
+    setShowInfo(false);
+    setLisääButton(0);
+  }
+};
+
 
   const handlevari = () => {
-    setShowInfo(false);
-    setVari(true);
+    if (väriButton === 0) {
+      setVari(true);
+      setVäriButton(1);
+      setLisääButton(0);
+    }
+    if (väriButton === 1) {
+      setVari(false)
+      setVäriButton(0)
+    }
   };
 
 
@@ -80,22 +106,6 @@ export default function App() {
     setBackUp(updatedData);
   };
 
-  const handletoinen = (Name) => {
-    setMuokkaus(true);
-    setInputText(Name)
-    setEdit(Name);
-  }
-
-  const handletoinentallennus = () => {
-    setMuokkaus(false);
-    const updateToinen = Data.map((muokattava) => {
-      if (muokattava.Name === edit.Name) {
-        return {...muokattava, Name: inputtext};
-      }
-      return muokattava;
-    })
-    setData(updateToinen)
-  }
 
   const handleDelete = (todo) => {
     const updatedData = Data.filter((poistettava) => poistettava.Id !== todo.Id);
@@ -147,6 +157,18 @@ export default function App() {
     }
   }
 
+  const handlevaritallenus = () => {
+    setTaustanBg(taustaBg);
+    setTaulukonBg(taulukkoBg);
+    setVari(false);
+    setVäriButton(0);
+  }
+
+  const handleVariPeruutus = () => {
+    setVari(false);
+    setVäriButton(0);
+  }
+
   
 
   document.title = "To-do list";
@@ -156,9 +178,9 @@ export default function App() {
     <head>
       <title>Your Website Name</title>
     </head>
-    <body>
+    <body style={{ backgroundColor: selectBg }}>
     <div className='app-container'>
-      <h1 class='text-[60px] italic'>Köyhän miehen todo lista</h1>
+      <h1 class='text-[60px] italic font-serif'>Köyhän miehen to do -lista</h1>
       <div className="color-input-container">
         <div>
           <Space className="site-button-ghost-wrapper" wrap>
@@ -174,40 +196,31 @@ export default function App() {
       {vari && (
         <div className="color-input-container">
           <div>
-            <h3>Taustanväri</h3>
+            <h3 class='my-2'>Taustanväri</h3>
             <input
               className="cool-color-input"
               type="color"
+              value={selectBg}
               onChange={(e) => {
-                document.documentElement.style.setProperty('--bg-cool-color', e.target.value);
+                setTaustaBg(e.target.value)
               }}
             />
           </div>
           <div>
-            <h3>Taulukonväri</h3>
+            <h3 class='my-2'>Taulukonväri</h3>
             <input
               className="cool-color-input"
               type="color"
+              value={selectTaulukkoBg}
               onChange={(e) => {
-                document.documentElement.style.setProperty('--table-color', e.target.value);
+                setTaulukkoBg(e.target.value)
               }}
             />
           </div>
-          <div>
-            <h3>Taulukon otsikon väri</h3>
-            <input
-              className='cool-color-input'
-              type='color'
-              onChange={(e) => {
-                document.documentElement.style.setProperty('--table-th-color', e.target.value)
-              }}
-            />
-          </div>
-          <h3>
             <Space className="site-button-ghost-wrapper" wrap>
-            <Button type='primary' ghost onClick={() => setVari(false)}>Tallenna</Button>
+            <Button type='primary' ghost onClick={handlevaritallenus}>Tallenna</Button>
+            <Button type='primary' ghost onClick={handleVariPeruutus}>Peruuta</Button>
             </Space>
-          </h3>
         </div>
       )}
       {showInfo && (
@@ -219,22 +232,19 @@ export default function App() {
               onChange={(e) => setInputText(e.target.value)}
             />
             <Space className="site-button-ghost-wrapper" wrap>
-            <Button type='primary' ghost onClick={handleSave}>Tallenna</Button>
+            <Button type='primary' ghost onClick={handleSave} className='tallenna-button'>Tallenna</Button>
             </Space>
           </div>
         </div>
       )}
-      <h2 class='text-[40px]'>Tekemättä</h2>
-      <table className='table'>
+      <h2 class='text-[40px] font-mono'>Tekemättä</h2>
+      <table className='table' style={{ backgroundColor: selectTaulukkoBg }}>
         <thead>
           <tr>
-            <Space className="site-button-ghost-wrapper" wrap>
             <th><Button type='primary' ghost onClick={handlebutton}>Sort</Button></th>
-            </Space>
             <th>Name</th>
             <th>State</th>
-            <th></th>
-            <th></th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -250,17 +260,9 @@ export default function App() {
                 </td>
                 <td>{todo.Name}</td>
                 <td>{todo.State}</td>
-                <td className="muokkaa-cell">
-                  <Space className="site-button-ghost-wrapper" wrap>
-                  <Button type='primary' ghost onClick={() => handlemuokkaus(todo)}>
-                    Muokkaa
-                  </Button>
-                  </Space>
-                </td>
-                <td>
-                  <Space className="site-button-ghost-wrapper" wrap>
+                <td >
+                  <Button type='primary' ghost onClick={() => handlemuokkaus(todo)}>Muokkaa</Button>
                   <Button type='primary' ghost onClick={()=> handleDelete(todo)}>Poista</Button>
-                  </Space>
                 </td>
               </tr>
             );
@@ -275,11 +277,11 @@ export default function App() {
             value={inputtext}
             onChange={(event) => setInputText(event.target.value)}
           />
-          <Button type='primary' ghost onClick={handletoinentallennus}>Tallenna</Button>
+          <Button type='primary' ghost onClick={handlemuokkaustallennus}>Tallenna</Button>
         </div>
       )}
-      <h2 class='text-2xl'>Tehdyt</h2>
-      <table className='table'>
+      <h2 class='text-[40px] font-mono'>Tehdyt</h2>
+      <table className='table' style={{ backgroundColor: selectTaulukkoBg }}>
         <thead>
           <tr>
             <th><Button type='primary' ghost onClick={handleTehdytButton}>Sort</Button></th>
@@ -292,7 +294,7 @@ export default function App() {
             return (
               <tr key={valmis.Id}>
                 <td></td>
-                <td>{valmis.Name}</td>
+                <td class='font-mono line-through'>{valmis.Name}</td>
                 <td>{valmis.State}</td>
               </tr>
             );
