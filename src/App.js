@@ -1,40 +1,48 @@
 import './App.css';
 import { Button, Space } from 'antd';
 import { useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
+
+import AddNewItem from './components/addNewItem';
+import ChangeColors from './components/changeColors';
+import DoneTable from './components/doneTable';
 
 export default function App() {
   const [showInfo, setShowInfo] = useState(false);
-  const [lisääButton, setLisääButton] = useState(0)
-  const [väriButton, setVäriButton] = useState(0)
-  const [inputtext, setInputText] = useState("");
-  const [showMuokkaus, setMuokkaus] = useState(false);
+  const [addButton, setAddButton] = useState(0)
+  const [colorButton, setColorButton] = useState(0)
+  const [inputText, setInputText] = useState("");
+  const [showEdit, setShowEdit] = useState(false);
+  const [showDateEdit, setShowDateEdit] = useState(false)
   const [Data, setData] = useState([]);
-  const [Tehty, setTehty] = useState([]);
+  const [Done, setDone] = useState([]);
   const [vari, setVari] = useState(false);
   const [edit, setEdit] = useState([]);
+  const [dateEdit, setDateEdit] = useState('')
   const [backUp, setBackUp] = useState([]);
-  const [tehtyBackUp, setTehtyBackUp] = useState([]);
+  const [doneBackUp, setDoneBackUp] = useState([]);
   const [sortButton, setSortButton] = useState(false)
-  const [tehdytSortButton, setTehdytSortButton] = useState(false)
+  const [doneSortButton, setDoneSortButton] = useState(false)
+  const [inputDue, setInputDue] = useState('')
 
   const [taustaBg, setTaustaBg] = useState('')
   const [taulukkoBg, setTaulukkoBg] = useState('')
   const [selectBg, setTaustanBg] = useState('#FFFFFF')
   const [selectTaulukkoBg, setTaulukonBg] = useState('#FFFFFF')
 
-  const handleSave = () => {
-    setShowInfo(false);
-    if (inputtext !== "") {
-      setData([...Data, { Id: uuidv4(), Name: inputtext, State: "Tekemättä" }]);
-      setBackUp([...Data, { Id: uuidv4(), Name: inputtext, State: "Tekemättä" }]);
-      setInputText('')
-      setLisääButton(0);
-    }
-    else {
-      setLisääButton(0)
-    }
+
+
+  const handleSave = (newItem) => {
+    setData([...Data, newItem]);
+    setBackUp([...Data, newItem]);
   };
+
+  const infoCancel = () => {
+    setShowInfo(false);
+    setInputText('')
+    setAddButton(0)
+  }
+
+
   const handleSort = () => {
     const sorted = [...Data].sort((a, b) => {
       const name1 = a.Name.toLowerCase();
@@ -51,54 +59,81 @@ export default function App() {
     setData(sorted);
   };
 
-const handleinfo = () => {
-  if (lisääButton === 0) {
+const handleNewItem = () => {
+  if (addButton === 0) {
     setShowInfo(true);
     setVari(false);
-    setLisääButton(1);
-    setVäriButton(0);
+    setAddButton(1);
+    setColorButton(0);
   }
-  if (lisääButton === 1) {
+  if (addButton === 1) {
     setShowInfo(false);
-    setLisääButton(0);
+    setAddButton(0);
   }
 };
 
 
   const handlevari = () => {
-    if (väriButton === 0) {
+    if (colorButton === 0) {
       setVari(true);
-      setVäriButton(1);
-      setLisääButton(0);
+      setShowInfo(false);
+      setColorButton(1);
+      setAddButton(0);
     }
-    if (väriButton === 1) {
+    if (colorButton === 1) {
       setVari(false)
-      setVäriButton(0)
+      setColorButton(0)
     }
   };
 
 
   const handleBox = (todo) => {
-    const updatedTehty = [...Tehty, { ...todo, State: 'Tehty' }];
+    const updatedDone = [...Done, { ...todo, State: 'Tehty' }];
     const updatedData = Data.filter((siirrettävä) => siirrettävä.Id !== todo.Id);
-    setTehty(updatedTehty);
+    setDone(updatedDone);
     setData(updatedData);
     setBackUp(updatedData);
-    setTehtyBackUp(updatedTehty);
+    setDoneBackUp(updatedDone);
   };
   
 
-  const handlemuokkaus = (todo) => {
-    setMuokkaus(true);
-    setInputText(todo.Name);
-    setEdit(todo);
+  const handlemuokkaus = (Name, Id) => {
+    setShowEdit(true);
+    setInputText(Name);
+    setEdit({Id})
+  };
+
+  const handleDateMuokkaus = (Due, Id) => {
+    setShowDateEdit(true);
+    setInputDue(Due);
+    setDateEdit({ Id });
+  };
+
+  const handleDateMuokkausTallennus = () => {
+    setShowDateEdit(false);
+    const updateDateData = Data.map((dateMuokkaus) => {
+      if (dateMuokkaus.Id === dateEdit.Id) {
+        return { ...dateMuokkaus, Due: inputDue };
+      }
+      return dateMuokkaus;
+    });
+
+    const updatedDueDate = new Date(inputDue);
+    const thisDate = new Date();
+
+    if (updatedDueDate < thisDate) {
+      alert('Virheellinen päivämäärä');
+    } else {
+      setData(updateDateData);
+      setBackUp(updateDateData);
+    }
   };
 
   const handlemuokkaustallennus = () => {
-    setMuokkaus(false);
+    setShowEdit(false);
     const updatedData = Data.map((muokkaus) => {
       if (muokkaus.Id === edit.Id) {
-        return { ...muokkaus, Name: inputtext };
+        return { ...muokkaus, Name: inputText };
       }
       return muokkaus;
     });
@@ -107,15 +142,15 @@ const handleinfo = () => {
   };
 
 
-  const handleDelete = (todo) => {
-    const updatedData = Data.filter((poistettava) => poistettava.Id !== todo.Id);
-    const updatedBackUp = backUp.filter((poistettava) => poistettava.Id !== todo.Id);
+  const handleDelete = (Id) => {
+    const updatedData = Data.filter((poistettava) => poistettava.Id !== Id);
+    const updatedBackUp = backUp.filter((poistettava) => poistettava.Id !== Id);
     setData(updatedData);
     setBackUp(updatedBackUp);
   };
 
-  const handletehtysort = () => {
-    const tehtysorted = [...Tehty].sort((a, b) => {
+  const handleDonesort = () => {
+    const Donesorted = [...Done].sort((a, b) => {
     const aname = a.Name.toLowerCase();
     const bname = b.Name.toLowerCase();
     if (aname < bname) {
@@ -126,16 +161,16 @@ const handleinfo = () => {
     }
     return 0;
     });
-    setTehty(tehtysorted)
+    setDone(Donesorted)
   };
 
   const handleDefault = () => {
     setData(backUp);
   }
   const handleDefaultTehdyt = () => {
-    setTehty(tehtyBackUp);
+    setDone(doneBackUp);
   }
-  const handlebutton = () => {
+  const handleButton = () => {
     if (sortButton === false) {
       handleSort();
       setSortButton(true);
@@ -146,14 +181,15 @@ const handleinfo = () => {
     }
   }
 
+
   const handleTehdytButton = () => {
-    if (tehdytSortButton === false) {
-      handletehtysort();
-      setTehdytSortButton(true);
+    if (doneSortButton === false) {
+      handleDonesort();
+      setDoneSortButton(true);
     }
     else {
       handleDefaultTehdyt();
-      setTehdytSortButton(false);
+      setDoneSortButton(false);
     }
   }
 
@@ -161,15 +197,14 @@ const handleinfo = () => {
     setTaustanBg(taustaBg);
     setTaulukonBg(taulukkoBg);
     setVari(false);
-    setVäriButton(0);
-  }
+    setColorButton(0);
+  };
 
   const handleVariPeruutus = () => {
     setVari(false);
-    setVäriButton(0);
-  }
+    setColorButton(0);
+  };
 
-  
 
   document.title = "To-do list";
 
@@ -180,11 +215,11 @@ const handleinfo = () => {
     </head>
     <body style={{ backgroundColor: selectBg }}>
     <div className='app-container'>
-      <h1 class='text-[60px] italic font-serif'>Köyhän miehen to do -lista</h1>
+      <h1 class='text-[60px] italic font-serif mb-[10px]'>Köyhän miehen to do -lista</h1>
       <div className="color-input-container">
         <div>
           <Space className="site-button-ghost-wrapper" wrap>
-          <Button type='primary' ghost onClick={handleinfo}>Lisää</Button>
+          <Button type='primary' ghost onClick={handleNewItem}>Lisää</Button>
           </Space>
         </div>
         <div>
@@ -193,109 +228,76 @@ const handleinfo = () => {
           </Space>
         </div>
       </div>
-      {vari && (
-        <div className="color-input-container">
-          <div>
-            <h3 class='my-2'>Taustanväri</h3>
-            <input
-              className="cool-color-input"
-              type="color"
-              value={selectBg}
-              onChange={(e) => {
-                setTaustaBg(e.target.value)
-              }}
-            />
-          </div>
-          <div>
-            <h3 class='my-2'>Taulukonväri</h3>
-            <input
-              className="cool-color-input"
-              type="color"
-              value={selectTaulukkoBg}
-              onChange={(e) => {
-                setTaulukkoBg(e.target.value)
-              }}
-            />
-          </div>
-            <Space className="site-button-ghost-wrapper" wrap>
-            <Button type='primary' ghost onClick={handlevaritallenus}>Tallenna</Button>
-            <Button type='primary' ghost onClick={handleVariPeruutus}>Peruuta</Button>
-            </Space>
-        </div>
-      )}
-      {showInfo && (
-        <div className='color-input-container'>
-          <div className='cool-input'>
-            <input
-              type="text"
-              placeholder="teksti"
-              onChange={(e) => setInputText(e.target.value)}
-            />
-            <Space className="site-button-ghost-wrapper" wrap>
-            <Button type='primary' ghost onClick={handleSave} className='tallenna-button'>Tallenna</Button>
-            </Space>
-          </div>
-        </div>
-      )}
-      <h2 class='text-[40px] font-mono'>Tekemättä</h2>
-      <table className='table' style={{ backgroundColor: selectTaulukkoBg }}>
-        <thead>
-          <tr>
-            <th><Button type='primary' ghost onClick={handlebutton}>Sort</Button></th>
-            <th>Name</th>
-            <th>State</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Data.map((todo) => {
-            return (
-              <tr key={todo.Id}>
-                <td>
-                  <input
-                    type='checkbox'
-                    defaultChecked={false}
-                    onChange={() => handleBox(todo)}
-                  />
-                </td>
-                <td>{todo.Name}</td>
-                <td>{todo.State}</td>
-                <td >
-                  <Button type='primary' ghost onClick={() => handlemuokkaus(todo)}>Muokkaa</Button>
-                  <Button type='primary' ghost onClick={()=> handleDelete(todo)}>Poista</Button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      {showMuokkaus && (
+    <ChangeColors
+      vari={vari}
+      setVari={setVari}
+      setTaulukkoBg={setTaulukkoBg}
+      taulukkoBg={taulukkoBg}
+      setTaustanBg={setTaustanBg}
+      handleVariTallenus={handlevaritallenus}
+      handleVariPeruutus={handleVariPeruutus}
+    />
+    <AddNewItem
+      showInfo={showInfo}
+      setShowInfo={setShowInfo}
+      addButton={addButton}
+      infoCancel={infoCancel}
+      onAddItem={handleSave}
+      setAddButton={setAddButton}
+    />
+      <h2 class='text-[40px] font-seriff italic mt-[10px]'>Tekemättä</h2>
+      <DoneTable
+        Data={Data}
+        selectTaulukkoBg={selectTaulukkoBg}
+        handleButton={handleButton}
+        handleBox={handleBox}
+        handleDateMuokkaus={handleDateMuokkaus}
+        handleDelete={handleDelete}
+        handlemuokkaus={handlemuokkaus}
+      />
+
+      {showEdit && (
         <div className='cool-input'>
           <input
             type="text"
             placeholder="Muokkaus"
-            value={inputtext}
+            value={inputText}
             onChange={(event) => setInputText(event.target.value)}
           />
           <Button type='primary' ghost onClick={handlemuokkaustallennus}>Tallenna</Button>
+          <Button type='primary' ghost onClick={()=>setEdit(false)}>Peruuta</Button>
+        </div>
+      )}
+      {showDateEdit && (
+        <div className='cool-input'>
+          <input
+            class='mb-[5px]'
+            type='date'
+            value={inputDue}
+            onChange={(e) => setInputDue(e.target.value)}
+          />
+          <Button type='primary' ghost onClick={handleDateMuokkausTallennus}>Tallenna</Button>
+          <button>Peruuta</button>
         </div>
       )}
       <h2 class='text-[40px] font-mono'>Tehdyt</h2>
       <table className='table' style={{ backgroundColor: selectTaulukkoBg }}>
         <thead>
           <tr>
-            <th><Button type='primary' ghost onClick={handleTehdytButton}>Sort</Button></th>
-            <th>Name</th>
-            <th>State</th>
+            <th><Button type='primary' ghost onClick={handleTehdytButton}>Järjestä</Button></th>
+            <th>To do</th>
+            <th>Vaihe</th>
+            <th>Due Date</th>
           </tr>
         </thead>
         <tbody>
-          {Tehty.map((valmis) => {
+          {Done.map((valmis) => {
             return (
               <tr key={valmis.Id}>
                 <td></td>
                 <td class='font-mono line-through'>{valmis.Name}</td>
                 <td>{valmis.State}</td>
+                <td>{valmis.Due}</td>
               </tr>
             );
           })}
@@ -305,4 +307,4 @@ const handleinfo = () => {
   </body>
   </html>
   );
-};
+}
