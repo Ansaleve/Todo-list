@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 import { Button, Space } from 'antd';
 
-const ChangeColors = ({ vari, setVari, setTaulukonBg, setTaustanBg, handleVariTallenus, handleVariPeruutus }) => {
-  const [taustaBg, setTaustaBg] = useState('');
-  const [taulukkoBg, setTaulukkoBg] = useState('');
+const ChangeColors = ({ vari, setVari, selectBg, setSelectBg, selectTaulukkoBg, setSelectTaulukkoBg }) => {
+  const [taustaBg, setTaustaBg] = useState(selectBg);
+  const [taulukkoBg, setTaulukkoBg] = useState(selectTaulukkoBg);
 
   const handleVariPeruutusClick = () => {
     setVari(false);
-    handleVariPeruutus();
   };
 
   const handleVariTallenusClick = () => {
-    setTaustanBg(taustaBg);
-    setTaulukonBg(taulukkoBg);
+    setSelectBg(taustaBg);
+    setSelectTaulukkoBg(taulukkoBg);
     setVari(false);
-    handleVariTallenus();
   };
 
   return vari ? (

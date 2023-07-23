@@ -1,26 +1,91 @@
 import React, { useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import { Button, Space } from 'antd';
+import { v4 as uuidv4 } from "uuid";
+import { Button, Space } from "antd";
+import { format } from "date-fns";
 
-const AddNewItem = ({ showInfo, setShowInfo, addButton, handleSave, infoCancel, onAddItem, setAddButton }) => {
+const AddNewItem = ({
+  showInfo,
+  setShowInfo,
+  addButton,
+  handleSave,
+  infoCancel,
+  onAddItem,
+  setAddButton,
+}) => {
   const [inputText, setInputText] = useState("");
   const [inputDue, setInputDue] = useState("");
+  const [inputTime, setInputTime] = useState("");
 
   const handleSaveClick = () => {
-    if (inputText !== '' && inputDue !== '') {
-      onAddItem({ Id: uuidv4(), Name: inputText, State: "Tekemättä", Due: inputDue });
+    const inputDueDate = new Date(inputDue);
+    const updatedDueDate = new Date(
+      inputDueDate.getFullYear(),
+      inputDueDate.getMonth(),
+      inputDueDate.getDate()
+    );
+    const thisDate = new Date();
+    const updatedThisDate = new Date(
+      thisDate.getFullYear(),
+      thisDate.getMonth(),
+      thisDate.getDate()
+    );
+    const tomorrowDate = new Date();
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    const updatedTomorrowDate = new Date(
+      tomorrowDate.getFullYear(),
+      tomorrowDate.getMonth(),
+      tomorrowDate.getDate()
+    );
+
+    if (updatedDueDate.getTime() === updatedThisDate.getTime()) {
+      onAddItem({
+        Id: uuidv4(),
+        Name: inputText,
+        State: "Tekemättä",
+        Due: "Tänään",
+        Time: inputTime,
+      });
       setShowInfo(false);
-      setInputText('');
-      setAddButton(0)
-    } else if (inputText === '') {
-      alert('Kirjoita To do:lle nimi!');
-      setAddButton(1)
+      setInputText("");
+      setInputTime("");
+      setAddButton(0);
+    } else if (updatedTomorrowDate.getTime() === updatedDueDate.getTime()) {
+      onAddItem({
+        Id: uuidv4(),
+        Name: inputText,
+        State: "Tekemättä",
+        Due: "Huomenna",
+        Time: inputTime,
+      });
+      setShowInfo(false);
+      setInputText("");
+      setInputTime("");
+      setAddButton(0);
+    } else if (inputText !== "" && inputDue !== "" && inputTime !== "") {
+      onAddItem({
+        Id: uuidv4(),
+        Name: inputText,
+        State: "Tekemättä",
+        Due: format(new Date(inputDue), "dd-MM-yyyy"),
+        Time: inputTime,
+      });
+      setShowInfo(false);
+      setInputText("");
+      setInputTime("");
+      setAddButton(0);
+      console.log(thisDate);
+      console.log(updatedDueDate);
+    } else if (inputText === "") {
+      alert("Kirjoita To do:lle nimi!");
+      return;
+    } else if (inputTime === "") {
+      alert("Merkitse aika");
+      return;
     } else {
-      alert('Kerro To do:n DueDate!')
-      setAddButton(1)
+      alert("Kerro To do:n DueDate!");
+      return;
     }
   };
-
   return showInfo ? (
     <div className="color-input-container">
       <div className="cool-input">
@@ -38,9 +103,20 @@ const AddNewItem = ({ showInfo, setShowInfo, addButton, handleSave, infoCancel, 
           value={inputDue}
           onChange={(e) => setInputDue(e.target.value)}
         />
+        <lable>Time: </lable>
+        <input
+          className="mt-[5px]"
+          type="time"
+          value={inputTime}
+          onChange={(e) => setInputTime(e.target.value)}
+        />
         <Space>
-        <Button type='primary' ghost onClick={handleSaveClick}>Tallenna</Button>
-        <Button type="primary" ghost onClick={infoCancel}>Peruuta</Button>
+          <Button type="primary" ghost onClick={handleSaveClick}>
+            Tallenna
+          </Button>
+          <Button type="primary" ghost onClick={infoCancel}>
+            Peruuta
+          </Button>
         </Space>
       </div>
     </div>
