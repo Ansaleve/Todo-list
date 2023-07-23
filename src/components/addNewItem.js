@@ -36,19 +36,40 @@ const AddNewItem = ({
       tomorrowDate.getMonth(),
       tomorrowDate.getDate()
     );
+    const notAllowedDate = new Date();
+    notAllowedDate.setDate(notAllowedDate.getDate() - 1);
 
-    if (updatedDueDate.getTime() === updatedThisDate.getTime()) {
-      onAddItem({
-        Id: uuidv4(),
-        Name: inputText,
-        State: "Tekemättä",
-        Due: "Tänään",
-        Time: inputTime,
-      });
-      setShowInfo(false);
-      setInputText("");
-      setInputTime("");
-      setAddButton(0);
+    const yesterdayDate = new Date(
+      notAllowedDate.getFullYear(),
+      notAllowedDate.getMonth(),
+      notAllowedDate.getDate()
+    );
+    const currentTime = new Date();
+    const hours = currentTime.getHours();
+    const minutes = currentTime.getMinutes();
+    const formattedTime = `${hours.toString()}:${minutes.toString()}`;
+    const dueTime = inputTime;
+    if (updatedDueDate.getTime() < yesterdayDate.getTime()) {
+      alert("Virheellinen päivämäärä!");
+      return;
+    } else if (updatedDueDate.getTime() === updatedThisDate.getTime()) {
+      if (formattedTime > dueTime) {
+        alert("Valitsemasi aika on mennyt jo! Valitse tuleva aika!");
+      } else {
+        onAddItem({
+          Id: uuidv4(),
+          Name: inputText,
+          State: "Tekemättä",
+          Due: "Tänään",
+          Time: inputTime,
+        });
+        setShowInfo(false);
+        setInputText("");
+        setInputTime("");
+        setAddButton(0);
+        console.log(dueTime);
+        console.log(formattedTime);
+      }
     } else if (updatedTomorrowDate.getTime() === updatedDueDate.getTime()) {
       onAddItem({
         Id: uuidv4(),
