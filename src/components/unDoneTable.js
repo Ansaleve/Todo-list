@@ -29,11 +29,7 @@ const UnDoneTable = ({
     setInputDue("");
     setInputTime("");
   };
-  const handleCancel = () => {
-    setEdit("");
-    setShowEdit(false);
-    setInputText("");
-  };
+
   const handleDelete = (Id) => {
     const updatedData = Data.filter((poistettava) => poistettava.Id !== Id);
     const updatedBackUp = backUp.filter((poistettava) => poistettava.Id !== Id);
@@ -73,18 +69,6 @@ const UnDoneTable = ({
     setShowEdit(true);
     setInputText(Name);
     setEdit({ Id, Name });
-  };
-
-  const handleEditSave = () => {
-    setShowEdit(false);
-    const updatedData = Data.map((muokkaus) => {
-      if (muokkaus.Id === edit.Id) {
-        return { ...muokkaus, Name: inputText };
-      }
-      return muokkaus;
-    });
-    setData(updatedData);
-    setBackUp(updatedData);
   };
 
   return (
@@ -192,22 +176,6 @@ const UnDoneTable = ({
             </Button>
           </div>
         </body>
-      )}
-      {showEdit && (
-        <div className="cool-input">
-          <input
-            type="text"
-            placeholder="Muokkaus"
-            value={inputText}
-            onChange={(event) => setInputText(event.target.value)}
-          />
-          <Button type="primary" ghost onClick={handleEditSave}>
-            Tallenna
-          </Button>
-          <Button type="primary" ghost onClick={handleCancel}>
-            Peruuta
-          </Button>
-        </div>
       )}
     </body>
   );

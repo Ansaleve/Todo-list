@@ -6,11 +6,11 @@ import { format } from "date-fns";
 import AddNewItem from "./components/addNewItem";
 import ChangeColors from "./components/changeColors";
 import UnDoneTable from "./components/unDoneTable";
+import EditForm from "./components/editForms";
+import DateEditForm from "./components/dateEditForm";
 
 export default function App() {
   const [showInfo, setShowInfo] = useState(false);
-  const [addButton, setAddButton] = useState(0);
-  const [colorButton, setColorButton] = useState(0);
   const [inputText, setInputText] = useState("");
   const [Data, setData] = useState([]);
   const [Done, setDone] = useState([]);
@@ -22,6 +22,11 @@ export default function App() {
   const [sortButton, setSortButton] = useState(false);
   const [inputDue, setInputDue] = useState("");
   const [inputTime, setInputTime] = useState("");
+
+  const [addButton, setAddButton] = useState(0);
+  const [colorButton, setColorButton] = useState(0);
+  const [editButton, setEditButton] = useState(0);
+  const [dateButton, setDateButton] = useState(0);
 
   const [selectBg, setSelectBg] = useState("#FFFFFF");
   const [selectTaulukkoBg, setSelectTaulukkoBg] = useState("#FFFFFF");
@@ -214,27 +219,41 @@ export default function App() {
           <UnDoneTable
             Data={Data}
             selectTaulukkoBg={selectTaulukkoBg}
-            handleButton={handleButton}
             handleBox={handleBox}
-            handleDateMuokkaus={handleDateMuokkaus}
-            handleDelete={handleDelete}
+            backUp={backUp}
             setData={setData}
             setBackUp={setBackUp}
-            backUp={backUp}
-            showEdit={showEdit}
-            showDateEdit={showDateEdit}
             setShowEdit={setShowEdit}
             setShowDateEdit={setShowDateEdit}
             setDateEdit={setDateEdit}
-            dateEdit={dateEdit}
+            inputDue={inputDue}
+            setInputDue={setInputDue}
+            setInputText={setInputText}
+            setEdit={setEdit}
+          />
+          <EditForm
+            showEdit={showEdit}
+            setShowEdit={setShowEdit}
             inputText={inputText}
             setInputText={setInputText}
+            Data={Data}
+            setData={setData}
+            setBackUp={setBackUp}
             edit={edit}
             setEdit={setEdit}
+          />
+          <DateEditForm
+            showDateEdit={showDateEdit}
+            setDateEdit={setDateEdit}
+            dateEdit={dateEdit}
             setInputDue={setInputDue}
             inputDue={inputDue}
             inputTime={inputTime}
             setInputTime={setInputTime}
+            setShowDateEdit={setShowDateEdit}
+            Data={Data}
+            setData={setData}
+            setBackUp={setBackUp}
           />
           <h2 class="text-[40px] font-mono">Tehdyt {inputDue}</h2>
           <UnDoneTable

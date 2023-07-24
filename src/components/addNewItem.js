@@ -17,76 +17,71 @@ const AddNewItem = ({
   const [inputDue, setInputDue] = useState("");
 
   const handleSaveClick = () => {
-    const inputDueDate = format(new Date(inputDue), "dd-MM-yyyy");
-    const currentDate = new Date();
-    const formattedCurrentDate = format(currentDate, "dd-MM-yyyy");
-    const tomorrowDate = addDays(currentDate, 1);
-    const formattedTomorrowDate = format(tomorrowDate, "dd-MM-yyyy");
-    const notAllowedDate = subDays(currentDate, 1);
-    const formattedNotAllowedDate = format(notAllowedDate, "dd-MM-yyy");
-    const currentTime = format(new Date(), "HH:mm");
-    const dueTime = inputTime;
-    console.log("input", inputDue);
-    console.log("päivä additems", inputDueDate);
-    if (inputDueDate < formattedNotAllowedDate) {
-      alert("Virheellinen päivämäärä!");
-      return;
-    } else if (inputDueDate === formattedCurrentDate) {
-      if (currentTime > dueTime) {
-        alert("Valitsemasi aika on mennyt jo! Valitse tuleva aika!");
-      } else {
+    if (inputDue !== "" && inputTime !== "" && inputText !== "") {
+      const inputDueDate = format(new Date(inputDue), "dd-MM-yyyy");
+      const currentDate = new Date();
+      const formattedCurrentDate = format(currentDate, "dd-MM-yyyy");
+      const tomorrowDate = addDays(currentDate, 1);
+      const formattedTomorrowDate = format(tomorrowDate, "dd-MM-yyyy");
+      const notAllowedDate = subDays(currentDate, 1);
+      const formattedNotAllowedDate = format(notAllowedDate, "dd-MM-yyy");
+      const currentTime = format(new Date(), "HH:mm");
+      const dueTime = inputTime;
+      console.log("input", inputDue);
+      console.log("päivä additems", inputDueDate);
+      if (inputDueDate < formattedNotAllowedDate) {
+        alert("Virheellinen päivämäärä!");
+        return;
+      } else if (inputDueDate === formattedCurrentDate) {
+        if (currentTime > dueTime) {
+          alert("Valitsemasi aika on mennyt jo! Valitse tuleva aika!");
+        } else {
+          onAddItem({
+            Id: uuidv4(),
+            Name: inputText,
+            State: "Tekemättä",
+            Due: inputDue,
+            Time: inputTime,
+            ShownDue: "Tänään",
+          });
+          setShowInfo(false);
+          setInputText("");
+          setInputTime("");
+          setAddButton(0);
+          setInputDue("");
+          console.log(dueTime);
+        }
+      } else if (formattedTomorrowDate === inputDueDate) {
         onAddItem({
           Id: uuidv4(),
           Name: inputText,
           State: "Tekemättä",
           Due: inputDue,
           Time: inputTime,
-          ShownDue: "Tänään",
+          ShownDue: "Huomenna",
+        });
+        setShowInfo(false);
+        setInputText("");
+        setInputTime("");
+        setInputDue("");
+        setAddButton(0);
+      } else if (inputText !== "" && inputDue !== "" && inputTime !== "") {
+        onAddItem({
+          Id: uuidv4(),
+          Name: inputText,
+          State: "Tekemättä",
+          Due: inputDue,
+          Time: inputTime,
+          ShownDue: inputDue,
         });
         setShowInfo(false);
         setInputText("");
         setInputTime("");
         setAddButton(0);
         setInputDue("");
-        console.log(dueTime);
       }
-    } else if (formattedTomorrowDate === inputDueDate) {
-      onAddItem({
-        Id: uuidv4(),
-        Name: inputText,
-        State: "Tekemättä",
-        Due: inputDue,
-        Time: inputTime,
-        ShownDue: "Huomenna",
-      });
-      setShowInfo(false);
-      setInputText("");
-      setInputTime("");
-      setInputDue("");
-      setAddButton(0);
-    } else if (inputText !== "" && inputDue !== "" && inputTime !== "") {
-      onAddItem({
-        Id: uuidv4(),
-        Name: inputText,
-        State: "Tekemättä",
-        Due: inputDue,
-        Time: inputTime,
-        ShownDue: inputDue,
-      });
-      setShowInfo(false);
-      setInputText("");
-      setInputTime("");
-      setAddButton(0);
-      setInputDue("");
-    } else if (inputText === "") {
-      alert("Kirjoita To do:lle nimi!");
-      return;
-    } else if (inputTime === "") {
-      alert("Merkitse aika");
-      return;
     } else {
-      alert("Kerro To do:n DueDate!");
-      return;
+      alert("Täydennä kaikki kentät!");
     }
   };
   return showInfo ? (
