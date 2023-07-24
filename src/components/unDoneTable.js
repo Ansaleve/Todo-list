@@ -1,6 +1,5 @@
 import { Button, Space } from "antd";
 import { format } from "date-fns";
-import { useState } from "react";
 
 const UnDoneTable = ({
   Data,
@@ -130,7 +129,7 @@ const UnDoneTable = ({
                 <td>{todo.Name}</td>
                 <td>{todo.State}</td>
                 <td>
-                  {todo.Due} & klo: {todo.Time}
+                  {todo.ShownDue} & klo: {todo.Time}
                 </td>
                 {todo.State === "Tekemättä" && (
                   <td>
