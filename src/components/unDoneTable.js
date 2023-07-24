@@ -1,5 +1,6 @@
 import { Button, Space } from "antd";
-import { setDate } from "date-fns";
+import { format } from "date-fns";
+import { useState } from "react";
 
 const UnDoneTable = ({
   Data,
@@ -13,11 +14,11 @@ const UnDoneTable = ({
   showDateEdit,
   setShowEdit,
   setShowDateEdit,
-  inputDue,
-  setInputDue,
   setDateEdit,
   dateEdit,
   inputText,
+  inputDue,
+  setInputDue,
   setInputText,
   edit,
   setEdit,
@@ -58,8 +59,8 @@ const UnDoneTable = ({
       return dateMuokkaus;
     });
 
-    const updatedDueDate = new Date(inputDue);
-    const thisDate = new Date();
+    const updatedDueDate = format(new Date(inputDue), "dd-MM-yyyy");
+    const thisDate = format(new Date(), "dd-MM-yyyy");
 
     if (updatedDueDate < thisDate) {
       alert("Virheellinen päivämäärä");
@@ -120,7 +121,7 @@ const UnDoneTable = ({
                     <Button
                       type="primary"
                       ghost
-                      onClick={() => handleBox(todo)}
+                      onClick={() => handleBox(todo, inputDue)}
                     >
                       Merkitse valmiiksi
                     </Button>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Space } from "antd";
-import { format } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 
 const AddNewItem = ({
   showInfo,
@@ -13,89 +13,71 @@ const AddNewItem = ({
   setAddButton,
 }) => {
   const [inputText, setInputText] = useState("");
-  const [inputDue, setInputDue] = useState("");
   const [inputTime, setInputTime] = useState("");
+  const [inputDue, setInputDue] = useState("");
 
   const handleSaveClick = () => {
-    const inputDueDate = new Date(inputDue);
-    const updatedDueDate = new Date(
-      inputDueDate.getFullYear(),
-      inputDueDate.getMonth(),
-      inputDueDate.getDate()
-    );
-    const thisDate = new Date();
-    const updatedThisDate = new Date(
-      thisDate.getFullYear(),
-      thisDate.getMonth(),
-      thisDate.getDate()
-    );
-    const tomorrowDate = new Date();
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    const updatedTomorrowDate = new Date(
-      tomorrowDate.getFullYear(),
-      tomorrowDate.getMonth(),
-      tomorrowDate.getDate()
-    );
-    const notAllowedDate = new Date();
-    notAllowedDate.setDate(notAllowedDate.getDate() - 1);
-
-    const yesterdayDate = new Date(
-      notAllowedDate.getFullYear(),
-      notAllowedDate.getMonth(),
-      notAllowedDate.getDate()
-    );
-    const currentTime = new Date();
-    const hours = currentTime.getHours();
-    const minutes = currentTime.getMinutes();
-    const formattedTime = `${hours.toString()}:${minutes.toString()}`;
+    const inputDueDate = format(new Date(inputDue), "dd-MM-yyyy");
+    const currentDate = new Date();
+    const formattedCurrentDate = format(currentDate, "dd-MM-yyyy");
+    const tomorrowDate = addDays(currentDate, 1);
+    const formattedTomorrowDate = format(tomorrowDate, "dd-MM-yyyy");
+    const notAllowedDate = subDays(currentDate, 1);
+    const formattedNotAllowedDate = format(notAllowedDate, "dd-MM-yyy");
+    const currentTime = format(new Date(), "HH:mm");
     const dueTime = inputTime;
-    if (updatedDueDate.getTime() < yesterdayDate.getTime()) {
+    console.log("input", inputDue);
+    console.log("päivä additems", inputDueDate);
+    if (inputDueDate < formattedNotAllowedDate) {
       alert("Virheellinen päivämäärä!");
       return;
-    } else if (updatedDueDate.getTime() === updatedThisDate.getTime()) {
-      if (formattedTime > dueTime) {
+    } else if (inputDueDate === formattedCurrentDate) {
+      if (currentTime > dueTime) {
         alert("Valitsemasi aika on mennyt jo! Valitse tuleva aika!");
       } else {
         onAddItem({
           Id: uuidv4(),
           Name: inputText,
           State: "Tekemättä",
-          Due: "Tänään",
+          Due: inputDue,
           Time: inputTime,
+          ShownDue: "Tänään",
         });
         setShowInfo(false);
         setInputText("");
         setInputTime("");
         setAddButton(0);
+        setInputDue("");
         console.log(dueTime);
-        console.log(formattedTime);
       }
-    } else if (updatedTomorrowDate.getTime() === updatedDueDate.getTime()) {
+    } else if (formattedTomorrowDate === inputDueDate) {
       onAddItem({
         Id: uuidv4(),
         Name: inputText,
         State: "Tekemättä",
-        Due: "Huomenna",
+        Due: inputDue,
         Time: inputTime,
+        ShownDue: "Huomenna",
       });
       setShowInfo(false);
       setInputText("");
       setInputTime("");
+      setInputDue("");
       setAddButton(0);
     } else if (inputText !== "" && inputDue !== "" && inputTime !== "") {
       onAddItem({
         Id: uuidv4(),
         Name: inputText,
         State: "Tekemättä",
-        Due: format(new Date(inputDue), "dd-MM-yyyy"),
+        Due: inputDue,
         Time: inputTime,
+        ShownDue: inputDue,
       });
       setShowInfo(false);
       setInputText("");
       setInputTime("");
       setAddButton(0);
-      console.log(thisDate);
-      console.log(updatedDueDate);
+      setInputDue("");
     } else if (inputText === "") {
       alert("Kirjoita To do:lle nimi!");
       return;
@@ -124,7 +106,7 @@ const AddNewItem = ({
           value={inputDue}
           onChange={(e) => setInputDue(e.target.value)}
         />
-        <lable>Time: </lable>
+        <label>Time: </label>
         <input
           className="mt-[5px]"
           type="time"
@@ -132,10 +114,20 @@ const AddNewItem = ({
           onChange={(e) => setInputTime(e.target.value)}
         />
         <Space>
-          <Button type="primary" ghost onClick={handleSaveClick}>
+          <Button
+            type="primary"
+            className="mt-[5px]"
+            ghost
+            onClick={handleSaveClick}
+          >
             Tallenna
           </Button>
-          <Button type="primary" ghost onClick={infoCancel}>
+          <Button
+            type="primary"
+            className="mt-[5px]"
+            ghost
+            onClick={infoCancel}
+          >
             Peruuta
           </Button>
         </Space>

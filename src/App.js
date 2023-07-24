@@ -1,6 +1,7 @@
 import "./App.css";
 import { Button, Space } from "antd";
 import { useState } from "react";
+import { format } from "date-fns";
 
 import AddNewItem from "./components/addNewItem";
 import ChangeColors from "./components/changeColors";
@@ -82,27 +83,39 @@ export default function App() {
   };
 
   const handleBox = (todo) => {
-    const dateCheck = new Date();
-    const checkingDate = new Date(todo.Due);
-    const checkTime = todo.Time;
+    const formattedDueDates = format(new Date(todo.Due), "dd-MM-yyyy");
+    const currentDate = format(new Date(), "dd-MM-yyyy");
+    const currentTime = format(new Date(), "HH:mm");
+    const dueTime = inputTime;
+    console.log("Päivä täällä on", formattedDueDates);
 
-    const currentTime = dateCheck.getTime();
-    const dueTime = new Date(
-      `${checkingDate.toDateString()} ${checkTime}`
-    ).getTime();
+    if (currentDate === formattedDueDates) {
+      if (dueTime < currentTime) {
+        const updatedDone = [...Done, { ...todo, State: "Tehty Myöhässä" }];
+        const updatedData = Data.filter(
+          (siirrettävä) => siirrettävä.Id !== todo.Id
+        );
 
-    if (currentTime === dueTime) {
-      const updatedDone = [...Done, { ...todo, State: "Tehty Ajoissa" }];
-      const updatedData = Data.filter(
-        (siirrettävä) => siirrettävä.Id !== todo.Id
-      );
+        setDone(updatedDone);
+        setData(updatedData);
+        setBackUp(updatedData);
+        setDoneBackUp(updatedDone);
+      } else if (dueTime > currentTime) {
+        const updatedDone = [...Done, { ...todo, State: "Tehty Ajoissa" }];
+        const updatedData = Data.filter(
+          (siirrettävä) => siirrettävä.Id !== todo.Id
+        );
 
-      setDone(updatedDone);
-      setData(updatedData);
-      setBackUp(updatedData);
-      setDoneBackUp(updatedDone);
-    } else if (currentTime > dueTime) {
-      const updatedDone = [...Done, { ...todo, State: "Tehty Myöhässä" }];
+        setDone(updatedDone);
+        setData(updatedData);
+        setBackUp(updatedData);
+        setDoneBackUp(updatedDone);
+      }
+    } else if (currentDate > formattedDueDates) {
+      const updatedDone = [
+        ...Done,
+        { ...todo, State: "Tehty Ajoissa", dueDate: inputDue },
+      ];
       const updatedData = Data.filter(
         (siirrettävä) => siirrettävä.Id !== todo.Id
       );
@@ -112,7 +125,7 @@ export default function App() {
       setBackUp(updatedData);
       setDoneBackUp(updatedDone);
     } else {
-      const updatedDone = [...Done, { ...todo, State: "Tehty Ajoissa" }];
+      const updatedDone = [...Done, { ...todo, State: "Tehty Myöhässä" }];
       const updatedData = Data.filter(
         (siirrettävä) => siirrettävä.Id !== todo.Id
       );
@@ -194,6 +207,8 @@ export default function App() {
             infoCancel={infoCancel}
             onAddItem={handleSave}
             setAddButton={setAddButton}
+            inputDue={inputDue}
+            setInputDue={setInputDue}
           />
           <h2 class="text-[40px] font-seriff italic mt-[10px]">Tekemättä</h2>
           <UnDoneTable
@@ -221,7 +236,7 @@ export default function App() {
             inputTime={inputTime}
             setInputTime={setInputTime}
           />
-          <h2 class="text-[40px] font-mono">Tehdyt</h2>
+          <h2 class="text-[40px] font-mono">Tehdyt {inputDue}</h2>
           <UnDoneTable
             Data={Done}
             selectTaulukkoBg={selectTaulukkoBg}
